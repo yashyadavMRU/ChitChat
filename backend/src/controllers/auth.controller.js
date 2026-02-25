@@ -33,8 +33,8 @@ export const signup = async(req,res) => {
         });
 
         if(newUser){
-            generateToken(newUser._id, res);
-            await newUser.save();
+            const savedUser = await newUser.save();
+            generateToken(savedUser._id, res);
 
             res.status(201).json({
                 _id: newUser._id,
@@ -58,6 +58,11 @@ export const login = async(req,res) => {
     try {
         if(!email || !password){
             return res.status(400).json({message: "All fields are required"});
+        }
+        const user = await User.findOne({email});
+
+        if(user){
+
         }
     } catch (error) {
         console.log("Error in Login controller", error);
