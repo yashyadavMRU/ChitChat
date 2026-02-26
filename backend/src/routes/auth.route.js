@@ -3,13 +3,12 @@ import { login, logout, signup, updateProfile } from "../controllers/auth.contro
 import { protectRoutes } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
-
 router.post("/signup", signup);
-
 router.post("/login", login);
-
 router.post("/logout", logout);
 
 router.put("/update-profle", protectRoutes, updateProfile);
+
+router.get("/check", protectRoutes, (req,res) => res.status(200).json(req.user));
 
 export default router;
