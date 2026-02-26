@@ -5,7 +5,9 @@ import { generateToken } from "../lib/utils.js";
 
 export const signup = async(req,res) => {
 
-    const {fullName, email, password} = req.body;
+    const fullName = (req.body.fullName || '').trim()
+    const email = (req.body.email || '').trim().toLowerCase();
+    const password = (req.body.password || '').trim();
     try {
         if(!fullName || !email || !password){
             return res.status(400).json({message: "All fields are required"});
@@ -33,8 +35,8 @@ export const signup = async(req,res) => {
         });
 
         if(newUser){
-            generateToken(newUser._id, res);
-            await newUser.save();
+            const savedUser = await newUser.save();
+            generateToken(savedUser._id, res);
 
             res.status(201).json({
                 _id: newUser._id,
@@ -53,19 +55,40 @@ export const signup = async(req,res) => {
 };
 
 export const login = async(req,res) => {
-    const {email, password} = req.body;
+    const email = (req.body.email || '').trim().toLowerCase();
+    const password = (req.body.password || '').trim();
 
     try {
         if(!email || !password){
-            return res.status(400).json({message: "All fields are required"});
+            return res.status(400).json({message: "Email or Password fields are required"});
         }
+        const user = await User.findOne({email});
+
+        if(!user) return res.status(400).json({message: "Invalid credentials"});
+
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+        if(!isPasswordCorrect) return res.status(400).json({message: "Invalid credentials"});
+
+        generateToken(user._id, res);
+
+        res.status(200).json({
+            _id: user._id,
+            fullName: user.fullName,
+            email: user.email,
+            profilePic: user.profilePic,
+        });
+
     } catch (error) {
         console.log("Error in Login controller", error);
-        res.status(400).json({ message: "Internal Server Error"});
+        res.status(500).json({ message: "Internal Server Error"});
     }
 
 };
 
-export const logout = (req,res) => {
-    res.send("Logout endpoint");
+export const logout = (_,res) => {
+    res.cookie("jwt", "", {
+        maxAge: 0,
+    });
+    res.status(200).json({message: "Logged out successfully"});
 };
