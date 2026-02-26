@@ -5,7 +5,9 @@ import { generateToken } from "../lib/utils.js";
 
 export const signup = async(req,res) => {
 
-    const {fullName, email, password} = req.body;
+    const fullName = (req.body.fullName || '').trim()
+    const email = (req.body.email || '').trim().toLowerCase();
+    const password = (req.body.password || '').trim();
     try {
         if(!fullName || !email || !password){
             return res.status(400).json({message: "All fields are required"});
@@ -53,11 +55,12 @@ export const signup = async(req,res) => {
 };
 
 export const login = async(req,res) => {
-    const {email, password} = req.body;
+    const email = (req.body.email || '').trim().toLowerCase();
+    const password = (req.body.password || '').trim();
 
     try {
         if(!email || !password){
-            return res.status(400).json({message: "All fields are required"});
+            return res.status(400).json({message: "Email or Password fields are required"});
         }
         const user = await User.findOne({email});
 
