@@ -1,17 +1,17 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-// import { ENV } from "../lib/env.js";
-import "dotenv/config";
+import { ENV } from "../lib/env.js";
 
 export const protectRoutes = async(req, res, next) => {
 
     try {
-        const token = req.cookie.jwt;
+        const token = req.cookies.jwt;
+       
         if(!token) return res.status(401).json({ message: "Unauthorized - No token provided"});
 
-        const {JWT_SCERET} = process.env;
-        if(!JWT_SCERET) throw new Error("JWT_SCERET is not configured");
-        const decoded = jwt.verify(token, JWT_SCERET);
+        const {JWT_SECRET} = ENV;
+        if(!JWT_SECRET) throw new Error("JWT_SCERET is not configured");
+        const decoded = jwt.verify(token, JWT_SECRET);
 
         if(!decoded) return res.status(401).json({ message: 'Unauthorized - Invalid token'});
 

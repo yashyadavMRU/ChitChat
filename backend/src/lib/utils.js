@@ -2,11 +2,11 @@ import jwt from "jsonwebtoken";
 import "dotenv/config";
 
 export const generateToken = async(userId, res) => {
-    const {JWT_SCERET} = process.env;
-    if(!JWT_SCERET) throw new Error("JWT_SCERET is not configured");
+    const {JWT_SECRET} = process.env;
+    if(!JWT_SECRET) throw new Error("JWT_SCERET is not configured");
 
     // create the token for the user
-    const token = jwt.sign({userId:userId}, JWT_SCERET, {
+    const token = jwt.sign({userId:userId}, JWT_SECRET, {
         expiresIn: "7d",
     });
     res.cookie("jwt", token, {
